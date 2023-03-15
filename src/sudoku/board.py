@@ -70,7 +70,7 @@ class Board:
         repeat = True
         while repeat:
             # it might happen that the reduction of a maybe number leads to a new fixed number
-            # if this happens, we repeat the whole process until there are no new fixed numbers any more
+            # if this happens, we repeat the whole process until there are no new fixed numbers any longer
             repeat = False
             for cell in self._cells:
                 repeat = repeat or cell.reduce_maybe_numbers(self.get_row_numbers(cell.get_row_idx()))
@@ -80,7 +80,8 @@ class Board:
 
     def set_last_remaining_number(self):
         """This method takes the maybe numbers from every cell. If in the according row, column or block there is
-        no other cell with that maybe number, the maybe number is the new fixed number."""
+        no other cell with that maybe number, the maybe number is the new fixed number. This only works if the method
+        reduce_maybe_numbers() has been called previously."""
         for cell in self._cells:
             if cell.is_number_fixed():
                 continue
@@ -101,9 +102,9 @@ class Board:
 
     def set_fixed_value_of_cell(self, cell, number):
         cell.new_fixed_number(number)
+        self.validate()
         # since we have created a new fixed number, we start reducing all maybe numbers again
         self.reduce_maybe_numbers()
-        self.validate()
 
     def get_cell(self, pos):
         for cell in self._cells:
