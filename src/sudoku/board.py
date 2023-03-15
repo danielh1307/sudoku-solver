@@ -67,12 +67,16 @@ class Board:
 
     def reduce_maybe_numbers(self):
         """This method reduces the maybe numbers for every cell."""
-        # FIXME: we should iterate multiple times if we really set a new value to a cell (check return value of reduce_maybe_numbers)
-        for cell in self._cells:
-            cell.reduce_maybe_numbers(self.get_row_numbers(cell.get_row_idx()))
-            cell.reduce_maybe_numbers(self.get_col_numbers(cell.get_col_idx()))
-            cell.reduce_maybe_numbers(self.get_block_numbers(cell.get_block_idx()))
-        self.validate()
+        repeat = True
+        while repeat:
+            # it might happen that the reduction of a maybe number leads to a new fixed number
+            # if this happens, we repeat the whole process until there are no new fixed numbers any more
+            repeat = False
+            for cell in self._cells:
+                repeat = repeat or cell.reduce_maybe_numbers(self.get_row_numbers(cell.get_row_idx()))
+                repeat = repeat or cell.reduce_maybe_numbers(self.get_col_numbers(cell.get_col_idx()))
+                repeat = repeat or cell.reduce_maybe_numbers(self.get_block_numbers(cell.get_block_idx()))
+            self.validate()
 
     def set_last_remaining_number(self):
         """This method takes the maybe numbers from every cell. If in the according row, column or block there is
@@ -97,7 +101,8 @@ class Board:
 
     def set_fixed_value_of_cell(self, cell, number):
         cell.new_fixed_number(number)
-        # FIXME: here we have to delete the maybe numbers from other cells in same row, column or block
+        # since we have created a new fixed number, we start reducing all maybe numbers again
+        self.reduce_maybe_numbers()
         self.validate()
 
     def get_cell(self, pos):
