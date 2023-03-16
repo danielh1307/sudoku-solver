@@ -17,9 +17,9 @@ def print_board(board):
             print("---------------------")
 
     print()
-    for cell in cells:
-        if not cell.is_number_fixed():
-            print(str(cell.pos()) + ": " + str(cell.maybe_numbers()))
+    # for cell in cells:
+    #     if not cell.is_number_fixed():
+    #         print(str(cell.pos()) + ": " + str(cell.maybe_numbers()))
 
 
 def numbers_of_cells_fixed_not_fixed(cells):
