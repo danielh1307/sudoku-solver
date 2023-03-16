@@ -33,16 +33,22 @@ class Board:
             raise Exception("Invalid row index")
         return self._cells[row_idx * 9:row_idx * 9 + 9]
 
-    def get_row_numbers(self, row_idx):
+    def get_row_numbers(self, row_idx, with_maybe=False):
         cells = self.get_row(row_idx)
+        if with_maybe:
+            return [x.number_or_maybe_number() for x in cells if x.is_number_fixed_or_maybe_number_set()]
         return [x.number() for x in cells if x.is_number_fixed()]
 
-    def get_col_numbers(self, col_idx):
+    def get_col_numbers(self, col_idx, with_maybe=False):
         cells = self.get_col(col_idx)
+        if with_maybe:
+            return [x.number_or_maybe_number() for x in cells if x.is_number_fixed_or_maybe_number_set()]
         return [x.number() for x in cells if x.is_number_fixed()]
 
-    def get_block_numbers(self, block_idx):
+    def get_block_numbers(self, block_idx, with_maybe=False):
         cells = self.get_block(block_idx)
+        if with_maybe:
+            return [x.number_or_maybe_number() for x in cells if x.is_number_fixed_or_maybe_number_set()]
         return [x.number() for x in cells if x.is_number_fixed()]
 
     def get_col(self, col_idx):
@@ -62,8 +68,8 @@ class Board:
             start_idx = 6 * 9 + (block_idx % 3) * 3
 
         return self._cells[start_idx:start_idx + 3] \
-               + self._cells[start_idx + 9:start_idx + 12] \
-               + self._cells[start_idx + 18:start_idx + 21]
+            + self._cells[start_idx + 9:start_idx + 12] \
+            + self._cells[start_idx + 18:start_idx + 21]
 
     def reduce_maybe_numbers(self):
         """This method reduces the maybe numbers for every cell."""
@@ -93,11 +99,11 @@ class Board:
                 continue
             self.__change_maybe_number_to_fixed(cell, self.get_block(cell.get_block_idx()))
 
-    def validate(self):
+    def validate(self, with_maybe=False):
         for i in range(0, 9):
-            if not self.no_doubles(self.get_row_numbers(i)) \
-                    or not self.no_doubles(self.get_col_numbers(i)) \
-                    or not self.no_doubles(self.get_block_numbers(i)):
+            if not self.no_doubles(self.get_row_numbers(i, with_maybe=with_maybe)) \
+                    or not self.no_doubles(self.get_col_numbers(i, with_maybe=with_maybe)) \
+                    or not self.no_doubles(self.get_block_numbers(i, with_maybe=with_maybe)):
                 raise Exception("Board is not valid any more")
 
     def set_fixed_value_of_cell(self, cell, number):
@@ -110,6 +116,43 @@ class Board:
         for cell in self._cells:
             if cell.pos() == pos:
                 return cell
+
+    def backtrack(self):
+        """
+        This is the backtracking algorithm.
+        It works as follows:
+        - from the given board, it takes the first cell which has no fixed number. It sets the first maybe_number
+            of that cell and afterwards checks if the board is still valid (with maybe).
+        - if the board is still valid, it passes the board to the next recursion of that method. By doing this, each
+            function always gets a valid board as input.
+        - if the board is not valid with the maybe number, the function takes the next maybe number and repeats the
+            step. If there are no more maybe numbers and the board is still not valid, it returns False.
+
+        Returns
+        -------
+        bool
+            True if the board is still valid with the next maybe number set. False otherwise.
+        """
+
+        first_cell_without_number = None
+        for cell in self._cells:
+            if not cell.is_number_fixed_or_maybe_number_set():
+                first_cell_without_number = cell
+                break
+
+        if not first_cell_without_number:
+            # great, there are no "empty" cells any longer, and we have a valid board, so this is the solution
+            return True
+
+        while first_cell_without_number.new_maybe_number():
+            if not self.validate(with_maybe=True):
+                # board is not valid, so we try the next number
+                continue
+            # board is still valid, so we pass the board one recursion down
+            return self.backtrack()
+
+        # we tried all maybe numbers with this board and that cell, no solution have been found
+        return False
 
     ########################################################
     # Static methods

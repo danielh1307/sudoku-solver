@@ -6,6 +6,7 @@ from src.sudoku.cell import Cell
 def test_create_valid_cell_with_number():
     c = Cell("5", (1, 1))
     assert c.number() == 5
+    assert c.maybe_number() is None
     assert len(c.maybe_numbers()) == 0
     assert c.pos() == (1, 1)
 
@@ -62,3 +63,33 @@ def test_new_fixed_number():
     assert c1.is_number_fixed()
     assert c1.number() == 1
     assert len(c1.maybe_numbers()) == 0
+
+
+def test_maybe_number():
+    c = Cell("X", (0, 0))
+    assert c.maybe_number() is None
+    assert c.new_maybe_number()
+    assert c.maybe_number() == 1
+    assert c.new_maybe_number()
+    assert c.maybe_number() == 2
+    c.reduce_maybe_numbers([1, 2, 3, 4, 5, 6, 8])
+    assert c.maybe_number() is None
+    assert c.maybe_numbers() == [7, 9]
+    assert c.new_maybe_number()
+    assert c.maybe_number() == 7
+    assert c.new_maybe_number()
+    assert c.maybe_number() == 9
+    assert not c.new_maybe_number()
+
+
+def test_number_maybe_number():
+    c = Cell("X", (0, 0))
+    assert not c.is_number_fixed_or_maybe_number_set()
+    c.new_maybe_number()
+    assert c.is_number_fixed_or_maybe_number_set()
+    assert c.number_or_maybe_number() == 1
+    c.reduce_maybe_numbers([1, 2, 3, 4, 5, 6, 7, 8])
+    print(c.is_number_fixed_or_maybe_number_set())
+    assert c.is_number_fixed_or_maybe_number_set()
+    assert c.number_or_maybe_number() == 9
+    assert c.maybe_number() is None

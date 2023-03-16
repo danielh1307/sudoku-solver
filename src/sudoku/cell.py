@@ -21,9 +21,11 @@ class Cell:
 
         if str(number).isdigit():
             self._number = int(number)
+            self._maybe_number = None
             self._maybe_numbers = []
         else:
             self._number = None
+            self._maybe_number = None
             self._maybe_numbers = list(range(1, 10))
 
         self._pos = pos  # TODO: validate value of pos
@@ -36,6 +38,23 @@ class Cell:
             an integer representing the fixed number of that cell. If the number is unknown yet, None is returned.
         """
         return self._number
+
+    def maybe_number(self):
+        """
+        Returns
+        -------
+        int
+            the current "maybe number" if there is one, otherwise None is returned.
+        """
+        return self._maybe_number
+
+    def number_or_maybe_number(self):
+        if self.number():
+            return self.number()
+        elif self.maybe_number():
+            return self.maybe_number()
+        else:
+            raise Exception("There is neither a fixed nor a maybe number")
 
     def maybe_numbers(self):
         """
@@ -58,6 +77,9 @@ class Cell:
 
     def is_number_fixed(self):
         return self._number is not None
+
+    def is_number_fixed_or_maybe_number_set(self):
+        return self.is_number_fixed() or self._maybe_number is not None
 
     def reduce_maybe_numbers(self, fixed_numbers):
         """
@@ -82,15 +104,44 @@ class Cell:
             raise Exception("No maybe numbers remain, check this")
         elif len(self._maybe_numbers) == 1:
             # we have found a new fixed number
-            self._number = self._maybe_numbers[0]
-            self._maybe_numbers = []
+            self.new_fixed_number(self._maybe_numbers[0])
             return True
+        # if we make changes in the maybe_numbers list, we also reset the maybe_number
+        self._maybe_numbers.sort()
+        self._maybe_number = None
         return False
 
     def new_fixed_number(self, number):
         """Sets a new fixed number, the maybe numbers are being reset."""
         self._number = number
+        self._maybe_number = None
         self._maybe_numbers.clear()
+
+    def new_maybe_number(self):
+        """Sets a new maybe number.
+        If there is no maybe number yet, the first number from maybe_numbers() is taken.
+        If there already is a maybe_number, the next number from maybe_numbers() is taken.
+        If there are is no available number in maybe_numbers any longer, maybe_number is set to None.
+
+        Returns
+        -------
+        bool
+            True if a new maybe number was set, False otherwise.
+        """
+        if self.is_number_fixed():
+            raise Exception("Do not call this method if the number is already fixed")
+
+        if not self._maybe_number:
+            self._maybe_number = self._maybe_numbers[0]
+            return True
+
+        cur_maybe_number_idx = self._maybe_numbers.index(self._maybe_number)
+        if cur_maybe_number_idx == len(self._maybe_numbers) - 1:
+            self._maybe_number = None
+            return False
+        else:
+            self._maybe_number = self._maybe_numbers[cur_maybe_number_idx + 1]
+            return True
 
     def get_row_idx(self):
         return self._pos[0]
