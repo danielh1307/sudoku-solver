@@ -1,5 +1,6 @@
 from src.sudoku.board import Board
 import src.sudoku.board_printer as printer
+import time
 
 
 def get_board():
@@ -28,4 +29,7 @@ def main():
 
 
 if __name__ == '__main__':
+    start_time = time.time()
     main()
+    stop_time = time.time()
+    print(f"It took me {stop_time - start_time}s to solve this problem")

@@ -1,18 +1,3 @@
-def cells_concatenated(cells):
-    return_str = ''
-    for cell in cells:
-        return_str += str(cell) + ','
-    return return_str[:-1]
-
-
-def print_row(board, row_idx):
-    print(cells_concatenated(board.get_row(row_idx)))
-
-
-def print_col(board, col_idx):
-    print(cells_concatenated(board.get_col(col_idx)))
-
-
 def print_board(board):
     cells = board.get_cells()
 
