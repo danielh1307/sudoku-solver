@@ -82,7 +82,8 @@ class Board:
                 repeat = repeat or cell.reduce_maybe_numbers(self.get_row_numbers(cell.get_row_idx()))
                 repeat = repeat or cell.reduce_maybe_numbers(self.get_col_numbers(cell.get_col_idx()))
                 repeat = repeat or cell.reduce_maybe_numbers(self.get_block_numbers(cell.get_block_idx()))
-            self.validate()
+            if not self.validate():
+                raise Exception("Board is not valid any more")
 
     def set_last_remaining_number(self):
         """This method takes the maybe numbers from every cell. If in the according row, column or block there is
@@ -104,11 +105,13 @@ class Board:
             if not self.no_doubles(self.get_row_numbers(i, with_maybe=with_maybe)) \
                     or not self.no_doubles(self.get_col_numbers(i, with_maybe=with_maybe)) \
                     or not self.no_doubles(self.get_block_numbers(i, with_maybe=with_maybe)):
-                raise Exception("Board is not valid any more")
+                return False
+        return True
 
     def set_fixed_value_of_cell(self, cell, number):
         cell.new_fixed_number(number)
-        self.validate()
+        if not self.validate():
+            raise Exception("Board is not valid any more")
         # since we have created a new fixed number, we start reducing all maybe numbers again
         self.reduce_maybe_numbers()
 
@@ -117,7 +120,17 @@ class Board:
             if cell.pos() == pos:
                 return cell
 
-    def backtrack(self):
+    def solve_with_backtrack(self):
+        solved = self.__backtrack()
+        if not solved:
+            raise Exception("Could not solve the board with backtracking")
+        else:
+            for cell in self._cells:
+                if not cell.is_number_fixed():
+                    cell.new_fixed_number(cell.maybe_number())
+        self.validate()
+
+    def __backtrack(self):
         """
         This is the backtracking algorithm.
         It works as follows:
@@ -149,10 +162,19 @@ class Board:
                 # board is not valid, so we try the next number
                 continue
             # board is still valid, so we pass the board one recursion down
-            return self.backtrack()
+
+            if self.__backtrack():
+                # tried all variations with this maybe number, trying next one ...
+                return True
 
         # we tried all maybe numbers with this board and that cell, no solution have been found
         return False
+
+    def is_solved(self):
+        for cell in self._cells:
+            if not cell.is_number_fixed():
+                return False
+        return True
 
     ########################################################
     # Static methods
