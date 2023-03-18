@@ -3,7 +3,7 @@ import src.sudoku.board_printer as printer
 
 
 def get_board():
-    with open("../../board/12.txt", "r") as board_input:
+    with open("../../board/44.txt", "r") as board_input:
         lines = board_input.read().split("\n")
 
     new_lines = list(map(lambda x: x.split(","), lines))
