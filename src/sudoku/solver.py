@@ -4,7 +4,7 @@ import time
 
 
 def get_board():
-    with open("../../board/evil.txt", "r") as board_input:
+    with open("../../board/175.txt", "r") as board_input:
         lines = board_input.read().split("\n")
 
     new_lines = list(map(lambda x: x.split(","), lines))
