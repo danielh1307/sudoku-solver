@@ -1,12 +1,10 @@
 def print_board(board):
-    cells = board.get_cells()
-
-    num_fixed, num_not_fixed = numbers_of_cells_fixed_not_fixed(cells)
+    num_fixed, num_not_fixed = numbers_of_cells_fixed_not_fixed(board)
 
     print("-----------------")
     print(f"Numbers of cells fixed: {num_fixed}")
     print(f"Numbers of cells not fixed: {num_not_fixed}\n")
-    for idx, cell in enumerate(cells):
+    for idx, cell in enumerate(board):
         end_str = '|'
         if (idx + 1) % 3 == 0:
             end_str = '| |'
@@ -22,10 +20,10 @@ def print_board(board):
     #         print(str(cell.pos()) + ": " + str(cell.maybe_numbers()))
 
 
-def numbers_of_cells_fixed_not_fixed(cells):
+def numbers_of_cells_fixed_not_fixed(board):
     numbers_of_cells_fixed = 0
     numbers_of_cells_not_fixed = 0
-    for cell in cells:
+    for cell in board:
         if cell.is_number_fixed():
             numbers_of_cells_fixed += 1
         else:

@@ -3,8 +3,8 @@ import src.sudoku.board_printer as printer
 import time
 
 
-def get_board(sudoku_number):
-    with open("../../board/" + sudoku_number, "r") as board_input:
+def get_board(sudoku_number_):
+    with open("../../board/" + sudoku_number_, "r") as board_input:
         lines = board_input.read().split("\n")
 
     new_lines = list(map(lambda x: x.split(","), lines))

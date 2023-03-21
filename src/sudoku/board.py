@@ -25,15 +25,6 @@ class Board:
             for col_idx, number in enumerate(row):
                 self._cells.append(Cell(number, (row_idx, col_idx)))
 
-    def get_cells(self) -> list:
-        """
-        Returns
-        -------
-        list
-            The list of cells of that board.
-        """
-        return self._cells
-
     def get_row(self, row_idx) -> list:
         """
         Parameters
@@ -53,7 +44,7 @@ class Board:
         """
         if row_idx < 0 or row_idx > 9:
             raise Exception("Invalid row index")
-        return self._cells[row_idx * 9:row_idx * 9 + 9]
+        return self[row_idx * 9:row_idx * 9 + 9]
 
     def get_col(self, col_idx) -> list:
         """
@@ -74,7 +65,7 @@ class Board:
         """
         if col_idx < 0 or col_idx > 9:
             raise Exception("Invalid column index")
-        return self._cells[col_idx::9]
+        return self[col_idx::9]
 
     def get_block(self, block_idx) -> list:
         """
@@ -103,9 +94,9 @@ class Board:
         else:
             start_idx = 6 * 9 + (block_idx % 3) * 3
 
-        return self._cells[start_idx:start_idx + 3] \
-               + self._cells[start_idx + 9:start_idx + 12] \
-               + self._cells[start_idx + 18:start_idx + 21]
+        return self[start_idx:start_idx + 3] \
+               + self[start_idx + 9:start_idx + 12] \
+               + self[start_idx + 18:start_idx + 21]
 
     def get_row_numbers(self, row_idx, with_maybe=False) -> list:
         """
@@ -196,7 +187,7 @@ class Board:
             # it might happen that the reduction of a maybe number leads to a new fixed number
             # if this happens, we repeat the whole process until there are no new fixed numbers any longer
             repeat = False
-            for cell in self._cells:
+            for cell in self:
                 repeat = repeat or cell.reduce_maybe_numbers(self.get_row_numbers(cell.get_row_idx()))
                 repeat = repeat or cell.reduce_maybe_numbers(self.get_col_numbers(cell.get_col_idx()))
                 repeat = repeat or cell.reduce_maybe_numbers(self.get_block_numbers(cell.get_block_idx()))
@@ -209,7 +200,7 @@ class Board:
         reduce_maybe_numbers() has been called previously."""
 
         # TODO: check if we should also repeat this step if a new fixed number is set
-        for cell in self._cells:
+        for cell in self:
             if cell.is_number_fixed():
                 continue
             self.__change_maybe_number_to_fixed(cell, self.get_row(cell.get_row_idx()))
@@ -265,7 +256,7 @@ class Board:
         Cell
             the cell at the specified position.
         """
-        for cell in self._cells:
+        for cell in self:
             if cell.pos() == pos:
                 return cell
 
@@ -282,7 +273,7 @@ class Board:
         if not solved:
             raise Exception("Could not solve the board with backtracking")
         else:
-            for cell in self._cells:
+            for cell in self:
                 if not cell.is_number_fixed():
                     cell.new_fixed_number(cell.maybe_number())
         self.validate()
@@ -305,7 +296,7 @@ class Board:
         """
 
         first_cell_without_number = None
-        for cell in self._cells:
+        for cell in self:
             if not cell.is_number_fixed_or_maybe_number_set():
                 first_cell_without_number = cell
                 break
@@ -334,7 +325,7 @@ class Board:
         bool
             True if the board is solved, that means we have only fixed numbers in a valid board. False otherwise.
         """
-        for cell in self._cells:
+        for cell in self:
             if not cell.is_number_fixed():
                 return False
         if not self.validate():
@@ -370,3 +361,13 @@ class Board:
         for maybe_number in cell.maybe_numbers():
             if maybe_number not in other_maybe_numbers:
                 self.set_fixed_value_of_cell(cell, maybe_number)
+
+    #########################################################
+    # Built-in methods
+    #########################################################
+
+    def __len__(self):
+        return len(self._cells)
+
+    def __getitem__(self,position):
+        return self._cells[position]
