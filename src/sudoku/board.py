@@ -84,7 +84,7 @@ class Board:
         Exception
             If the given col_idx is not between 0 and 8 (inclusive), an Exception is raised.
         """
-        # TODO: there might be a more elegant way to solve this
+
         if block_idx < 0 or block_idx > 9:
             raise Exception("Invalid block index")
         if block_idx < 3:
@@ -199,7 +199,6 @@ class Board:
         no other cell with that maybe number, the maybe number is the new fixed number. This only works if the method
         reduce_maybe_numbers() has been called previously."""
 
-        # TODO: check if we should also repeat this step if a new fixed number is set
         for cell in self:
             if cell.is_number_fixed():
                 continue
